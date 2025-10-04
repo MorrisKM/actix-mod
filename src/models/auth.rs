@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Debug)]
 pub struct LoginReq {
@@ -6,13 +6,14 @@ pub struct LoginReq {
   pub email: String
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize)]
 pub struct UserModel {
   pub firstname: String,
   pub lastname: String,
   pub password: String,
   pub email: String,
 }
+
 
 #[derive(Deserialize)]
 pub struct PathParams{
