@@ -13,3 +13,10 @@ pub struct UserModel {
   pub password: String,
   pub email: String,
 }
+
+#[derive(Deserialize)]
+pub struct PathParams{
+  pub name: String,
+  pub id: String,
+  pub email: String
+}
