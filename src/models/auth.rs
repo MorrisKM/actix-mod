@@ -1,0 +1,15 @@
+use serde::Deserialize;
+
+#[derive(Deserialize, Debug)]
+pub struct LoginReq {
+  pub password: String,
+  pub email: String
+}
+
+#[derive(Deserialize, Debug)]
+pub struct UserModel {
+  pub firstname: String,
+  pub lastname: String,
+  pub password: String,
+  pub email: String,
+}
