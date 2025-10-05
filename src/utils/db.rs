@@ -1,25 +1,6 @@
 use sqlx::{prelude::FromRow, Executor,SqlitePool};
 
-pub async fn db() -> SqlitePool {
-    let pool = sqlx::sqlite::SqlitePool::connect("sqlite://db.sqlite").await.unwrap();
 
-    pool.execute("
-        CREATE TABLE IF NOT EXISTS todos (
-          id PRIMARY KEY AUTOINCREMENT,
-          user_id INTEGER NULL,
-          todo TEXT NOT NULL,
-        )
-
-        CREATE TABLE IF NOT EXISTS users (
-          id TEXT PRIMARY KEY,
-          firstname TEXT NOT NULL,
-          lastname TEXT NOT NULL,
-          password TEXT NOT NULL,
-          email TEXT UNIQUE NOT NULL,
-        )
-    ").await.unwrap();
-    pool
-}
 
 
 pub mod users {
