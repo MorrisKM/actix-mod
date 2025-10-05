@@ -1,5 +1,6 @@
 use actix_web::{web};
-use crate::handlers::auth::{get_user, logout};
+use crate::handlers::auth::{logout};
+use crate::handlers::users::get_user;
 
 
 pub fn get_auth_services() -> actix_web::Scope {

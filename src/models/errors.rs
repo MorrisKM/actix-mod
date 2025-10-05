@@ -1,9 +1,10 @@
+#[allow(unused)]
 use actix_web::{
   error, http::{header::ContentType, StatusCode}, App, HttpResponse
 };
 use derive_more::{Display, Error};
 
-
+#[allow(unused)]
 #[derive(Debug, Display, Error)]
 pub enum HttpError {
   #[display(fmt = "internal server error")]

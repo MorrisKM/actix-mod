@@ -6,8 +6,9 @@ pub struct LoginReq {
   pub email: String
 }
 
-#[derive(Deserialize, Debug, Serialize)]
+#[derive(Deserialize, Debug, Serialize, sqlx::FromRow)]
 pub struct UserModel {
+  pub id: String,
   pub firstname: String,
   pub lastname: String,
   pub password: String,
