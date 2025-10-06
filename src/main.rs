@@ -4,13 +4,14 @@ use actix_web::{web::{self, get}, App, HttpResponse, HttpServer, Responder};
 use tracing::{info, subscriber, Level};
 use tracing_subscriber::FmtSubscriber;
 use dotenv::dotenv;
-use std::env;
-use sqlx::{prelude::FromRow, Executor,SqlitePool};
+
+use crate::{utils::db::db};
 
 mod api;
 mod handlers;
 mod models;
 mod utils;
+mod middleware;
 
 #[actix_web::main]
 async fn main() {
@@ -28,6 +29,19 @@ async fn main() {
         .with_max_level(Level::INFO)
         .finish();
     tracing::subscriber::set_global_default(subscriber).expect("error setting global subscriber for tracing");
+
+    // let user = UserModel {
+    //     firstname: "Morris".to_string(),
+    //     lastname: "Munene".to_string(),
+    //     email: "morris@email.com".to_string(),
+    //     password: "password".to_string(),
+    //     id: "uuid".to_string()
+    // };
+    // let token = utils::jwt::jwt::encode(user);
+    // println!("Token gen: {}", &token);
+    // let res = utils::jwt::jwt::decode(&token);
+    // println!("validation: {}", res);
+
     info!("Starting server at port: 3000");
     HttpServer::new(move || {
         App::new()
@@ -38,7 +52,7 @@ async fn main() {
         .service(api::auth::get_auth_services())
         .route("/hello", get().to(manual_hello))
     })
-    .bind("0.0.0.0:3000")
+    .bind("0.0.0.0:8080")
     .unwrap()
     //.worker() this will specify the number of cores to use in the app
     .run()
@@ -51,25 +65,3 @@ async fn manual_hello() -> impl Responder {
     HttpResponse::Ok().body("Hello")
 }
 
-async fn db() -> SqlitePool {
-    let pool = sqlx::sqlite::SqlitePool::connect("sqlite://db.sqlite").await.unwrap();
-
-    pool.execute("
-        CREATE TABLE IF NOT EXISTS todos (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          user_id INTEGER NULL,
-          todo TEXT NOT NULL
-        );
-    ").await.unwrap();
-
-    pool.execute("
-        CREATE TABLE IF NOT EXISTS users (
-          id TEXT PRIMARY KEY,
-          firstname TEXT NOT NULL,
-          lastname TEXT NOT NULL,
-          password TEXT NOT NULL,
-          email TEXT UNIQUE NOT NULL
-        )
-    ").await.unwrap();
-    pool
-}

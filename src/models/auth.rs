@@ -22,3 +22,12 @@ pub struct PathParams{
   pub id: String,
   pub email: String
 }
+
+#[derive(Serialize, Debug, Deserialize)]
+pub struct Claims {
+  pub custom_claim: UserModel,
+  pub iss: String,
+  pub sub: String,
+  pub aud: String,
+  pub exp: u64
+}
