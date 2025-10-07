@@ -5,7 +5,7 @@ use tracing::{info, subscriber, Level};
 use tracing_subscriber::FmtSubscriber;
 use dotenv::dotenv;
 
-use crate::{utils::db::db};
+use crate::{handlers::chat::ws, middleware::auth::TokenAuth, utils::db::db};
 
 mod api;
 mod handlers;
@@ -48,9 +48,11 @@ async fn main() {
         .app_data(data.clone())
         .app_data(web::Data::new(pool.clone()))
         .service(api::public::get_public_services())
+        //.wrap(TokenAuth)
         .service(api::users::get_user_services())
         .service(api::auth::get_auth_services())
         .route("/hello", get().to(manual_hello))
+        .route("/ws", web::get().to(ws))
     })
     .bind("0.0.0.0:8080")
     .unwrap()
