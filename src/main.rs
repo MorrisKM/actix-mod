@@ -1,6 +1,8 @@
-use std::sync::Mutex;
+use std::{str::FromStr, sync::Mutex};
 
 use actix_web::{web::{self, get}, App, HttpResponse, HttpServer, Responder};
+use chrono::Local;
+use cron::Schedule;
 use tracing::{info, subscriber, Level};
 use tracing_subscriber::FmtSubscriber;
 use dotenv::dotenv;
@@ -12,6 +14,11 @@ mod handlers;
 mod models;
 mod utils;
 mod middleware;
+mod chatserver;
+
+struct CronState{
+    schedule: Mutex<Schedule>
+}
 
 #[actix_web::main]
 async fn main() {
@@ -43,6 +50,28 @@ async fn main() {
     // println!("validation: {}", res);
 
     info!("Starting server at port: 3000");
+
+    let cron_state = CronState{
+        //this schedule you can check from crontab.guru
+        schedule: Mutex::new(Schedule::from_str("0/10 * * * * *").unwrap())
+    };
+    //setup a cron on an new thread
+    std::thread::spawn(move || {
+        let mut last_run = chrono::Local::now();
+        loop {
+            let schedule = cron_state.schedule.lock().unwrap();
+            let next_run = schedule.upcoming(Local).next().unwrap();
+            drop(schedule); //unlock the mutex
+
+            if next_run > last_run{
+                let wait_time = next_run - chrono::Local::now();
+                std::thread::sleep(std::time::Duration::from_secs(wait_time.num_seconds() as u64));
+                println!("periodic task executed at {}", chrono::Local::now());
+                last_run = chrono::Local::now();
+            }
+        }
+    });
+
     HttpServer::new(move || {
         App::new()
         .app_data(data.clone())
@@ -57,7 +86,7 @@ async fn main() {
         .service(handlers::file::uploadv2)
         .service(handlers::file::file_async::uploadv3)
         .route("/hello", get().to(manual_hello))
-        .route("/ws", web::get().to(ws))
+        .service(ws)
     })
     .bind("0.0.0.0:8080")
     .unwrap()
